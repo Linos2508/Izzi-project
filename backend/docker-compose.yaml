@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    command: "bash start.sh"
+    volumes:
+      - ./:/appTest
+    ports:
+      - "8001:8001"
+    environment:
+      DEV_DB_SCHEMA: secret
+      DEV_DB_HOST: secret
+      DEV_DB_USERNAME: secret
+      DEV_DB_PASSWORD: secret
+      DEV_DB_PORT: secret
+      API_KEY: 9d6ca50acc8e258a77e8151236ab29fb
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
