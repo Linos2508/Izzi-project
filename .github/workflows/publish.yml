@@ -33,9 +33,9 @@ jobs:
         working-directory: frontend/izzi
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::001669694281:role/GithubS3DeployerRole
+          role-to-assume: arn:aws:iam::001669694281:role/GitHubDeployer
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Check AWS CLI version
