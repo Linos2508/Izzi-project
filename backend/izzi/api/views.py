@@ -55,16 +55,23 @@ def checkIp(request):
         return JsonResponse({'message': 'ip already exists'}, status=400)
 
 def getIpsList(request):
-    order = request.GET.get('orderBy', 'id')
+    order = request.GET.get('orderBy')
     search = request.GET.get('search', '')
+    try: 
+        order = json.loads(order)
+    except:
+        order = None
+    orderString = 'id'
+    if order:
+            orderString = ('-' if order[0]['desc'] else '') + order[0]['id']
     results = Ips.objects.filter(
-        Q(city__icontains=search) 
+        Q(city__icontains=search)
         | Q(country__icontains=search) 
         | Q(country_flag__icontains=search)
         | Q(ip__icontains=search)
         | Q(latitude__icontains=search)
         | Q(longitude__icontains=search)
-    ).order_by(order)
+    ).order_by(orderString)
     return JsonResponse({
         'data': list(results.values()),
     }, safe=False)

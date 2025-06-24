@@ -1,11 +1,12 @@
 import {
   MaterialReactTable,
+  MRT_SortingState,
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
 import {Ip} from './types';
 import React from 'react';
-import { Box, Card, CardContent, IconButton } from '@mui/material';
+import { Box, Card, CardContent, IconButton, Tooltip } from '@mui/material';
 import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
@@ -18,10 +19,11 @@ const Home = () => {
     const [search, setSearch] = React.useState('');
     const [isOpen, setIsOpen] = React.useState<boolean>(false);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [sorting, setSorting] = React.useState<MRT_SortingState>([]);
 
     const fetchData = React.useCallback(() => {
         setIsLoading(true);
-        fetch(`${BASE_API}backend/ips/?search=${search}`,{
+        fetch(`${BASE_API}backend/ips/?search=${search}&orderBy=${JSON.stringify(sorting)}`,{
             method: 'GET'
         }).then(res => res.json())
         .then(response => {
@@ -32,7 +34,7 @@ const Home = () => {
         }).catch((e) =>{
             alert(e)
         });
-    },[search])
+    },[search, sorting])
     
     const deleteIp = (id: number) => {
         fetch(`${BASE_API}backend/ips/?ip=${id}`,{
@@ -49,8 +51,9 @@ const Home = () => {
     }
 
     React.useEffect(() => {
+        console.log(sorting)
         fetchData()
-    },[search, fetchData])
+    },[search, fetchData, sorting])
 
     const columns = React.useMemo<MRT_ColumnDef<Ip>[]>(() => [
         {
@@ -92,26 +95,34 @@ const Home = () => {
         columns,
         data,
         enableColumnFilters: false,
+        enableColumnActions: false,
         manualFiltering: true,
+        manualSorting: true,
+        onSortingChange: setSorting,
         onGlobalFilterChange: setSearch,
         state: { 
+            sorting: sorting,
             globalFilter: search,
             isLoading: isLoading,
         },
         enableRowActions: true,
         renderRowActions: ({ row }) => (
             <Box>
-                <IconButton onClick={() => deleteIp(row.original.id)}>
-                    <DeleteIcon color='error' />
-                </IconButton>
+                <Tooltip title="Delete">
+                    <IconButton onClick={() => deleteIp(row.original.id)}>
+                        <DeleteIcon color='error' />
+                    </IconButton>
+                </Tooltip>
             </Box>
         ),
         positionActionsColumn: 'last',
         renderTopToolbarCustomActions: () => (
             <>
-                <IconButton onClick={() => setIsOpen(true)}>
-                    <AddIcon />
-                </IconButton>
+                <Tooltip title="Add new ip">
+                    <IconButton onClick={() => setIsOpen(true)}>
+                        <AddIcon />
+                    </IconButton>
+                </Tooltip>
             </>
         ),
         enablePagination: false,
